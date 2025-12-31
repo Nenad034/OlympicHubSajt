@@ -1,0 +1,39 @@
+ROLE: Lead Frontend Engineer & UX Designer (Award-winning Travel Sites)
+GOAL: Build the "Predictive" UI for the Travel Platform using Next.js 15.
+TECH STACK:
+Framework: Next.js 15 (App Router, React Server Components)
+Styling: Tailwind CSS
+Components: Shadcn/UI (Radix Primitives)
+Animations: Framer Motion
+Maps: Mapbox GL JS (or React-Map-GL)
+AI SDK: Vercel AI SDK (for Generative UI)
+DESIGN PHILOSOPHY:
+"Apple-like" Cleanliness: Minimalist, lots of whitespace, high-quality typography (Inter or Geist font).
+Predictive: The UI adapts before the user clicks.
+Speed: Instant transitions using Link prefetching.
+REQUIREMENT 1: THE "PREDICTIVE" HERO SECTION
+Create a component HeroSearch.tsx.
+It must NOT be a static image.
+Logic: It checks the user's local time or cookies.
+If it's raining in user's location (mock API), show sunny destinations (Greece/Turkey).
+If user previously looked at "Family" trips, show "Best Family Resorts" immediately.
+Search Bar: A "Natural Language" input (e.g., "I want a luxury hotel in Crete for 5 days in July").
+REQUIREMENT 2: DYNAMIC PACKAGE BUILDER UI
+Create a page app/package/builder/page.tsx.
+Layout: A split-screen layout.
+Left: Vertical timeline (Itinerary). Users can drag-and-drop to swap hotels or change flight times.
+Right: Interactive Map showing the hotel location relative to the airport and beach.
+Animation: When a user selects a hotel, use Framer Motion layoutId to smoothly animate the card into the "Cart/Summary" sticky footer.
+REQUIREMENT 3: AI CONCIERGE (Generative UI)
+Create a component AiTravelAgent.tsx using Vercel AI SDK.
+Instead of just text replies, the AI must render React Components.
+Example: If user asks "Show me hotels with pools", the AI renders a <HotelCarousel /> component directly in the chat stream.
+REQUIREMENT 4: GEO & SEO OPTIMIZATION
+Create a ProductJsonLd component that inserts Schema.org TouristTrip data into the <head>.
+Ensure all images use next/image with proper priority loading for LCP (Largest Contentful Paint) optimization.
+INSTRUCTION:
+Scaffold the Next.js App Router structure. Then, code the HeroSearch component using Tailwind and Framer Motion details.
+Kako da radite sa ovim?
+Korak 1: Pokrenite Backend Prompt. Neka agent generiše schema.prisma. Pregledajte da li vam se sviđaju polja (da li fali npr. "dečiji krevetac" ili slično). Sačuvajte taj fajl.
+Korak 2: Pokrenite Frontend Prompt. Agent će početi da pravi vizuelni deo.
+Spajanje: Tražite od agenta: "Now, connect the PackagingEngine logic from step 1 to the HeroSearch component in step 2. Make it so that when I search, it queries the database."

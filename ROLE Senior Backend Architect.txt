@@ -1,0 +1,40 @@
+ROLE: Senior Backend Architect (TravelTech Specialist)
+GOAL: Design the Database Schema and Core Logic for a Dynamic Packaging Travel Engine.
+TECH STACK:
+Language: TypeScript
+Framework: Next.js 15 (Server Actions) or Node.js (NestJS)
+Database: PostgreSQL
+ORM: Prisma (preferred) or Drizzle
+Vector DB: Pinecone (for AI search)
+REQUIREMENT 1: DATABASE SCHEMA (Prisma)
+Create a robust schema.prisma file that handles the complexity of a Tour Operator.
+Key Models needed:
+Inventory Models:
+Flight (Cache for GDS results: flight number, carrier, departure/arrival times).
+Hotel (Static info: name, stars, location, amenities).
+Room (Types: Single, Double, Sea View).
+Transfer (Private, Shuttle).
+Dynamic Package Models (CRITICAL):
+PackageBlueprint: A template for a trip (e.g., "Summer in Greece").
+Itinerary: The actual combination a user books (Flight ID + Hotel ID + Transfer ID).
+PriceComponent: Breakdown of costs (Net Price, Agency Margin, Tax).
+Agency Management:
+MarginRule: Dynamic rules (e.g., "If booking date < 30 days, margin = 15%").
+Supplier: (Amadeus, Hotelbeds, LocalContract).
+AI & Search:
+HotelEmbedding: Vector data for AI semantic search.
+REQUIREMENT 2: CORE LOGIC (Dynamic Packaging Engine)
+Write a TypeScript service class PackagingEngine.ts.
+It must have a function calculatePackagePrice() that:
+Accepts selected flight price and hotel price.
+Fetches active MarginRules from the DB.
+Applies the margin (markup) to the net prices.
+Adds OpaqueMask (a flag to hide individual component prices from the user).
+Returns the final single price.
+REQUIREMENT 3: SERBIAN COMPLIANCE (Placeholder)
+Create a data interface InvoiceData that aligns with "Sistem E-Faktura" (SEF) standards (UBL 2.1), including fields for:
+pib (Tax ID)
+maticniBroj (Registration Number)
+fiscalQrCode (string placeholder)
+INSTRUCTION:
+Start by writing the full schema.prisma file. Explain the relationships between Itinerary and Flight/Hotel specifically for dynamic bundling.
