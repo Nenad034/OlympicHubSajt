@@ -1,0 +1,311 @@
+// This is your Prisma schema file for OlympicHub Travel Platform
+// Learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ====================================
+// INVENTORY MODELS - Travel Components
+// ====================================
+
+model Flight {
+  id            String   @id @default(cuid())
+  flightNumber  String
+  carrier       String
+  departureTime DateTime
+  arrivalTime   DateTime
+  origin        String
+  destination   String
+  cabinClass    String   // Economy, Business, First
+  availableSeats Int
+  netPrice      Decimal  @db.Decimal(10, 2)
+  currency      String   @default("EUR")
+  validUntil    DateTime
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  itineraries   Itinerary[]
+  supplier      Supplier?   @relation(fields: [supplierId], references: [id])
+  supplierId    String?
+
+  @@index([origin, destination, departureTime])
+  @@index([flightNumber])
+}
+
+model Hotel {
+  id          String   @id @default(cuid())
+  name        String
+  stars       Int      // 1-5
+  location    String
+  city        String
+  country     String
+  latitude    Float
+  longitude   Float
+  amenities   String[] // Pool, Spa, Restaurant, WiFi, etc.
+  description String?  @db.Text
+  imageUrl    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  rooms            Room[]
+  itineraries      Itinerary[]
+  hotelEmbeddings  HotelEmbedding[]
+  supplier         Supplier?        @relation(fields: [supplierId], references: [id])
+  supplierId       String?
+
+  @@index([city, country])
+  @@index([stars])
+}
+
+model Room {
+  id          String   @id @default(cuid())
+  hotelId     String
+  hotel       Hotel    @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+  
+  roomType    String   // Single, Double, Suite, Sea View, Family
+  bedCount    Int
+  maxOccupancy Int
+  amenities   String[] // Balcony, AC, TV, MiniBar
+  pricePerNight Decimal @db.Decimal(10, 2)
+  currency    String   @default("EUR")
+  available   Boolean  @default(true)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([hotelId])
+  @@index([roomType])
+}
+
+model Transfer {
+  id          String   @id @default(cuid())
+  transferType String  // Private, Shuttle, Shared
+  vehicleType String   // Sedan, Van, Bus
+  origin      String
+  destination String
+  capacity    Int
+  pricePerPerson Decimal @db.Decimal(10, 2)
+  currency    String   @default("EUR")
+  available   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  itineraries Itinerary[]
+  supplier    Supplier?   @relation(fields: [supplierId], references: [id])
+  supplierId  String?
+
+  @@index([origin, destination])
+}
+
+// ====================================
+// DYNAMIC PACKAGE MODELS
+// ====================================
+
+model PackageBlueprint {
+  id          String   @id @default(cuid())
+  name        String   // "Summer in Greece", "Family Adventure Turkey"
+  description String   @db.Text
+  category    String   // Family, Luxury, Budget, Adventure
+  duration    Int      // Days
+  
+  // Template configuration
+  destinationCity String
+  destinationCountry String
+  season      String?  // Summer, Winter, Spring, Fall
+  tags        String[] // Beach, Culture, Kids-Friendly
+  
+  imageUrl    String?
+  isActive    Boolean  @default(true)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([category])
+  @@index([destinationCity])
+}
+
+model Itinerary {
+  id          String   @id @default(cuid())
+  
+  // Customer info
+  customerName  String?
+  customerEmail String?
+  
+  // Package components
+  flightId    String?
+  flight      Flight?   @relation(fields: [flightId], references: [id])
+  
+  hotelId     String?
+  hotel       Hotel?    @relation(fields: [hotelId], references: [id])
+  
+  transferId  String?
+  transfer    Transfer? @relation(fields: [transferId], references: [id])
+  
+  // Dates
+  checkInDate  DateTime
+  checkOutDate DateTime
+  travelers    Int       @default(1)
+  
+  // Pricing
+  totalPrice   Decimal   @db.Decimal(10, 2)
+  currency     String    @default("EUR")
+  opaqueMask   Boolean   @default(false) // Hide component breakdown
+  
+  // Status
+  status       String    @default("DRAFT") // DRAFT, CONFIRMED, PAID, CANCELLED
+  bookingReference String? @unique
+  
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  // Relations
+  priceComponents PriceComponent[]
+  invoiceData     InvoiceData?
+
+  @@index([status])
+  @@index([customerEmail])
+  @@index([checkInDate])
+}
+
+model PriceComponent {
+  id          String   @id @default(cuid())
+  itineraryId String
+  itinerary   Itinerary @relation(fields: [itineraryId], references: [id], onDelete: Cascade)
+  
+  componentType String // Flight, Hotel, Transfer, Tax, Margin
+  netPrice      Decimal @db.Decimal(10, 2)
+  marginAmount  Decimal @db.Decimal(10, 2) @default(0)
+  taxAmount     Decimal @db.Decimal(10, 2) @default(0)
+  totalPrice    Decimal @db.Decimal(10, 2)
+  currency      String  @default("EUR")
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([itineraryId])
+  @@index([componentType])
+}
+
+// ====================================
+// AGENCY MANAGEMENT
+// ====================================
+
+model MarginRule {
+  id          String   @id @default(cuid())
+  ruleName    String
+  description String?  @db.Text
+  
+  // Conditions
+  bookingDaysAdvance Int? // If booking < X days from departure
+  seasonType  String?      // Summer, Winter
+  packageCategory String?  // Family, Luxury
+  
+  // Margin configuration
+  marginPercent Decimal @db.Decimal(5, 2) // e.g., 15.00 for 15%
+  marginFixed   Decimal @db.Decimal(10, 2) @default(0) // Fixed amount
+  
+  isActive    Boolean  @default(true)
+  priority    Int      @default(0) // Higher priority rules apply first
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([isActive, priority])
+}
+
+model Supplier {
+  id          String   @id @default(cuid())
+  name        String   // Amadeus, Hotelbeds, LocalContract
+  type        String   // GDS, Hotel_Aggregator, Local
+  apiUrl      String?
+  apiKey      String?  // Encrypted in production
+  contactEmail String?
+  contactPhone String?
+  
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  flights     Flight[]
+  hotels      Hotel[]
+  transfers   Transfer[]
+
+  @@index([type])
+}
+
+// ====================================
+// AI & SEARCH
+// ====================================
+
+model HotelEmbedding {
+  id          String   @id @default(cuid())
+  hotelId     String
+  hotel       Hotel    @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+  
+  // Vector data for semantic search (stored as array of floats)
+  embedding   Float[]  // In production, use pgvector extension
+  
+  // Metadata for search
+  searchText  String   @db.Text // Concatenated: name + location + amenities
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([hotelId])
+  @@index([hotelId])
+}
+
+// ====================================
+// SERBIAN E-FAKTURA COMPLIANCE
+// ====================================
+
+model InvoiceData {
+  id          String   @id @default(cuid())
+  itineraryId String   @unique
+  itinerary   Itinerary @relation(fields: [itineraryId], references: [id], onDelete: Cascade)
+  
+  // SEF - Serbian E-Faktura Standards (UBL 2.1)
+  invoiceNumber String   @unique
+  invoiceDate   DateTime @default(now())
+  
+  // Company info
+  pib           String   // Tax ID (PIB)
+  maticniBroj   String   // Registration Number
+  companyName   String
+  companyAddress String
+  
+  // Customer info
+  buyerPib      String?
+  buyerName     String
+  buyerAddress  String?
+  
+  // Fiscal
+  fiscalQrCode  String?  @db.Text // QR code data
+  cisCode       String?  // CIS payment code
+  
+  // Amounts
+  taxableAmount Decimal  @db.Decimal(10, 2)
+  taxAmount     Decimal  @db.Decimal(10, 2)
+  totalAmount   Decimal  @db.Decimal(10, 2)
+  currency      String   @default("RSD")
+  
+  // Status
+  isFiscalized  Boolean  @default(false)
+  fiscalizedAt  DateTime?
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([invoiceNumber])
+  @@index([pib])
+}
