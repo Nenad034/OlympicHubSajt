@@ -123,7 +123,18 @@ export class PackagingEngine {
       },
     });
 
-    return rules as MarginRule[];
+    return rules.map(rule => ({
+      id: rule.id,
+      ruleName: rule.ruleName,
+      description: rule.description || undefined,
+      bookingDaysAdvance: rule.bookingDaysAdvance || undefined,
+      seasonType: rule.seasonType || undefined,
+      packageCategory: rule.packageCategory || undefined,
+      marginPercent: Number(rule.marginPercent),
+      marginFixed: Number(rule.marginFixed),
+      isActive: rule.isActive,
+      priority: rule.priority,
+    }));
   }
 
   /**
@@ -295,7 +306,7 @@ export class PackagingEngine {
 
     const typedComponents: PriceComponent[] = components.map(c => ({
       id: c.id,
-      componentType: c.componentType as any,
+      componentType: c.componentType as 'FLIGHT' | 'HOTEL' | 'TRANSFER' | 'TAX' | 'MARGIN',
       netPrice: Number(c.netPrice),
       marginAmount: Number(c.marginAmount),
       taxAmount: Number(c.taxAmount),

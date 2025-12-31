@@ -12,7 +12,7 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plane, Hotel, Car, Calendar, Users, MapPin } from 'lucide-react';
+import { Plane, Hotel, Car } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import type { Flight, Hotel as HotelType, Transfer, PackageBuilderState } from '@/types/package';

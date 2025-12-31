@@ -35,6 +35,7 @@ import type {
   RecommendationRequest,
   RecommendationResponse,
 } from '@/types/api';
+import type { PackageSearchResult } from '@/types/package';
 
 export class OlympicHubApiClient {
   private config: ApiConfig;
@@ -196,15 +197,21 @@ export class OlympicHubApiClient {
   // ====================================
 
   async getPackageBlueprints(params?: PackageBlueprintRequest): Promise<ApiResponse<PackageBlueprintResponse>> {
-    const query = params ? `?${new URLSearchParams(params as any)}` : '';
+    const query = params ? `?${new URLSearchParams(params as Record<string, string>)}` : '';
     return this.request<PackageBlueprintResponse>(`/api/packages/blueprints${query}`);
   }
 
   async searchPackages(params: PackageSearchApiRequest): Promise<PackageSearchApiResponse> {
-    return this.request<any>('/api/packages/search', {
+    const response = await this.request<PackageSearchResult>('/api/packages/search', {
       method: 'POST',
       body: JSON.stringify(params),
-    }) as Promise<PackageSearchApiResponse>;
+    });
+    
+    return {
+      ...response,
+      recommendations: [],
+      popularDestinations: [],
+    };
   }
 
   // ====================================
@@ -252,6 +259,7 @@ export class OlympicHubApiClient {
    * Get current configuration (excluding API key)
    */
   getConfig(): Omit<ApiConfig, 'apiKey'> {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { apiKey, ...safeConfig } = this.config;
     return safeConfig;
   }

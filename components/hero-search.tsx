@@ -32,7 +32,7 @@ export default function HeroSearch() {
     // Simulate user context detection
     const detectUserContext = () => {
       // Check cookies or localStorage for previous searches
-      const previousCategory = localStorage.getItem('previousCategory') as any;
+      const previousCategory = localStorage.getItem('previousCategory') as 'family' | 'luxury' | 'adventure' | null;
       
       // Simulate weather detection (in production, use actual weather API)
       const mockWeather = Math.random() > 0.5 ? 'rainy' : 'sunny';

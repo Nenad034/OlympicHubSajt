@@ -25,7 +25,7 @@ interface Message {
 }
 
 // Mock hotel carousel component that AI can render
-function HotelCarousel({ hotels }: { hotels: any[] }) {
+function HotelCarousel({ hotels }: { hotels: Array<{ name: string; location: string; price: number }> }) {
   return (
     <div className="space-y-2">
       <p className="text-sm font-medium">Here are hotels with pools:</p>
