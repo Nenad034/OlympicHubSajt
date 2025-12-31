@@ -1,4 +1,5 @@
 import HeroSearch from "@/components/hero-search";
+import DestinationCard from "@/components/destination-card";
 import ProductJsonLd from "@/components/product-json-ld";
 
 export default function Home() {
@@ -12,16 +13,24 @@ export default function Home() {
         <section className="max-w-7xl mx-auto px-4 py-16">
           <h2 className="text-3xl font-bold mb-8">Popular Destinations</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {/* Placeholder for featured destination cards */}
-            <div className="aspect-video bg-gray-100 rounded-lg flex items-center justify-center text-gray-400">
-              Greece
-            </div>
-            <div className="aspect-video bg-gray-100 rounded-lg flex items-center justify-center text-gray-400">
-              Turkey
-            </div>
-            <div className="aspect-video bg-gray-100 rounded-lg flex items-center justify-center text-gray-400">
-              Croatia
-            </div>
+            <DestinationCard
+              name="Grčka"
+              imageUrl="https://images.unsplash.com/photo-1613395877344-13d4a8e0d49e?w=800"
+              price="Od 399€"
+              description="Ostrva i antička istorija"
+            />
+            <DestinationCard
+              name="Turska"
+              imageUrl="https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?w=800"
+              price="Od 349€"
+              description="Egzotika i kultura"
+            />
+            <DestinationCard
+              name="Hrvatska"
+              imageUrl="https://images.unsplash.com/photo-1555990538-9f59c4715007?w=800"
+              price="Od 299€"
+              description="Jadransko more i priroda"
+            />
           </div>
         </section>
 
