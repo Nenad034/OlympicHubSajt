@@ -13,6 +13,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plane, Hotel, Car } from 'lucide-react';
+import Image from 'next/image';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import type { Flight, Hotel as HotelType, Transfer, PackageBuilderState } from '@/types/package';
@@ -46,7 +47,33 @@ const mockHotels: HotelType[] = [
     longitude: 25.4615,
     amenities: ['Pool', 'Spa', 'Restaurant', 'WiFi', 'Beach Access'],
     description: 'Luxury beachfront resort with stunning sunset views',
-    imageUrl: '/placeholder-hotel.jpg',
+    imageUrl: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600',
+  },
+  {
+    id: '2',
+    name: 'Blue Lagoon Hotel',
+    stars: 4,
+    location: 'Crete Coast',
+    city: 'Crete',
+    country: 'Greece',
+    latitude: 35.2401,
+    longitude: 24.8093,
+    amenities: ['Pool', 'Restaurant', 'WiFi', 'Beach Access'],
+    description: 'Beautiful coastal hotel with crystal clear waters',
+    imageUrl: 'https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?w=600',
+  },
+  {
+    id: '3',
+    name: 'Paradise Beach',
+    stars: 4,
+    location: 'Rhodes Beach',
+    city: 'Rhodes',
+    country: 'Greece',
+    latitude: 36.4341,
+    longitude: 28.2176,
+    amenities: ['Pool', 'Restaurant', 'WiFi', 'Beach Access', 'Water Sports'],
+    description: 'Perfect beach resort for families and couples',
+    imageUrl: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=600',
   },
 ];
 
@@ -148,14 +175,30 @@ export default function PackageBuilder() {
                   {selectedItems.hotel ? (
                     <motion.div
                       layoutId={`hotel-${selectedItems.hotel.id}`}
-                      className="p-4 bg-white border rounded-lg"
+                      className="bg-white border rounded-lg overflow-hidden"
                     >
-                      <p className="font-medium">{selectedItems.hotel.name}</p>
-                      <p className="text-sm text-gray-600">{selectedItems.hotel.city}, {selectedItems.hotel.country}</p>
-                      <div className="flex gap-1 mt-1">
-                        {Array.from({ length: selectedItems.hotel.stars }).map((_, i) => (
-                          <span key={i} className="text-yellow-400">★</span>
-                        ))}
+                      <div className="flex gap-3">
+                        {selectedItems.hotel.imageUrl && (
+                          <div className="relative w-20 h-20 flex-shrink-0">
+                            <Image
+                              src={selectedItems.hotel.imageUrl}
+                              alt={selectedItems.hotel.name}
+                              fill
+                              sizes="80px"
+                              className="object-cover"
+                              loading="lazy"
+                            />
+                          </div>
+                        )}
+                        <div className="flex-1 p-2">
+                          <p className="font-medium">{selectedItems.hotel.name}</p>
+                          <p className="text-sm text-gray-600">{selectedItems.hotel.city}, {selectedItems.hotel.country}</p>
+                          <div className="flex gap-1 mt-1">
+                            {Array.from({ length: selectedItems.hotel.stars }).map((_, i) => (
+                              <span key={i} className="text-yellow-400">★</span>
+                            ))}
+                          </div>
+                        </div>
                       </div>
                     </motion.div>
                   ) : (
@@ -239,24 +282,43 @@ export default function PackageBuilder() {
                   <motion.div
                     key={hotel.id}
                     layoutId={`hotel-${hotel.id}`}
-                    className="p-4 border rounded-lg cursor-pointer hover:border-primary transition-colors"
+                    className="border rounded-lg cursor-pointer hover:border-primary transition-colors overflow-hidden"
                     onClick={() => selectHotel(hotel)}
                   >
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <p className="font-medium">{hotel.name}</p>
-                        <div className="flex gap-1 my-1">
-                          {Array.from({ length: hotel.stars }).map((_, i) => (
-                            <span key={i} className="text-yellow-400">★</span>
-                          ))}
+                    <div className="flex gap-4">
+                      {/* Hotel Image */}
+                      {hotel.imageUrl && (
+                        <div className="relative w-32 h-32 flex-shrink-0">
+                          <Image
+                            src={hotel.imageUrl}
+                            alt={hotel.name}
+                            fill
+                            sizes="128px"
+                            className="object-cover"
+                            loading="lazy"
+                          />
                         </div>
-                        <p className="text-sm text-gray-600">{hotel.city}, {hotel.country}</p>
-                        <div className="flex flex-wrap gap-1 mt-2">
-                          {hotel.amenities.slice(0, 3).map((amenity) => (
-                            <span key={amenity} className="text-xs bg-gray-100 px-2 py-1 rounded">
-                              {amenity}
-                            </span>
-                          ))}
+                      )}
+                      
+                      {/* Hotel Info */}
+                      <div className="flex-1 p-4">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <p className="font-medium">{hotel.name}</p>
+                            <div className="flex gap-1 my-1">
+                              {Array.from({ length: hotel.stars }).map((_, i) => (
+                                <span key={i} className="text-yellow-400">★</span>
+                              ))}
+                            </div>
+                            <p className="text-sm text-gray-600">{hotel.city}, {hotel.country}</p>
+                            <div className="flex flex-wrap gap-1 mt-2">
+                              {hotel.amenities.slice(0, 3).map((amenity) => (
+                                <span key={amenity} className="text-xs bg-gray-100 px-2 py-1 rounded">
+                                  {amenity}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>
